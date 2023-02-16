@@ -74,4 +74,24 @@ public class BasicTransactionTest {
         transactionManager.rollback(transaction2);
     }
 
+    /**
+     * 외부 트랜잭션과 내부 트랜잭션이 하나의 물리 트랜잭션으로 묶이는 것
+     * 외부 트랜잭션만 물리 트랜잭션을 시작하고 커밋한다.
+     * 처음 트랜잭션을 시작한 외부 트랜잭션이 실제 물리 트랜잭션을 관리
+     */
+    @Test
+    void inner_commit(){
+        log.info("외부 트랜잭션 시작");
+        TransactionStatus outer = transactionManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("outer.isNewTransaction() -> {}", outer.isNewTransaction());
+
+        log.info("내부 트랜잭션 시작");
+        TransactionStatus inner = transactionManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("inner.isNewTransaction() -> {}", inner.isNewTransaction());
+        log.info("내부 트랜잭션 커밋");
+        transactionManager.commit(inner);
+
+        log.info("외부 트랜잭션 커밋");
+        transactionManager.commit(outer);
+    }
 }
