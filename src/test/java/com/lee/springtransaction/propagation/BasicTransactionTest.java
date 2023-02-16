@@ -47,4 +47,31 @@ public class BasicTransactionTest {
         transactionManager.rollback(status);
         log.info("트랜잭션 롤백 완료");
     }
+
+    @Test
+    void double_commit(){
+        log.info("트랜잭션1 시작");
+        TransactionStatus transaction1 = transactionManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("트랜잭션1 커밋 시작");
+        transactionManager.commit(transaction1);
+
+        log.info("트랜잭션2 시작");
+        TransactionStatus transaction2 = transactionManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("트랜잭션2 커밋 시작");
+        transactionManager.commit(transaction2);
+    }
+
+    @Test
+    void double_commit_rollback(){
+        log.info("트랜잭션1 시작");
+        TransactionStatus transaction1 = transactionManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("트랜잭션1 커밋 시작");
+        transactionManager.commit(transaction1);
+
+        log.info("트랜잭션2 시작");
+        TransactionStatus transaction2 = transactionManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("트랜잭션2 롤백 시작");
+        transactionManager.rollback(transaction2);
+    }
+
 }
