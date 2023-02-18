@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
@@ -22,9 +23,9 @@ class MemberServiceTest {
     LogRepository logRepository;
 
     /**
-     * memberService        -> @Transactional : Off
-     * memberRepository     -> @Transactional : In
-     * logRepository        -> @Transactional : In
+     * memberService        -> @Transactional : OFF
+     * memberRepository     -> @Transactional : ON
+     * logRepository        -> @Transactional : ON
      */
     @Test
     void outerTransactionOff_success(){
@@ -34,10 +35,27 @@ class MemberServiceTest {
         // when
         memberService.joinV1(username);
 
-        // when -> 모든 데이터가 정상 저장된다.
+        // then -> 모든 데이터가 정상 저장된다.
         assertTrue(memberRepository.find(username).isPresent());
         assertTrue(logRepository.find(username).isPresent());
-        // then
+    }
 
+    /**
+     * memberService        -> @Transactional : OFF
+     * memberRepository     -> @Transactional : ON
+     * logRepository        -> @Transactional : ON Exception
+     */
+    @Test
+    void outerTransactionOff_fail(){
+        // given
+        String username = "로그예외_outerTransactionOff_fail";
+
+        // when
+        assertThatThrownBy(() -> memberService.joinV1(username))
+                        .isInstanceOf(RuntimeException.class);
+
+        // then -> 멤버는 커밋, 로그는 롤백
+        assertTrue(memberRepository.find(username).isPresent());
+        assertTrue(logRepository.find(username).isEmpty());
     }
 }
