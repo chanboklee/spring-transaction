@@ -140,4 +140,26 @@ class MemberServiceTest {
         assertTrue(memberRepository.find(username).isEmpty());
         assertTrue(logRepository.find(username).isEmpty());
     }
+
+    /**
+     * memberService        -> @Transactional : ON
+     * memberRepository     -> @Transactional : ON
+     * logRepository        -> @Transactional : ON(REQUIRES_NEW) Exception
+     *
+     * [정리]
+     * 논리 트랜잭션은 하나라도 롤백되면 관련된 물리 트랜잭션은 롤백된다.
+     * REQUIRES_NEW를 사용해서 트랜잭션을 분리
+     */
+    @Test
+    void recoverException_success(){
+        // given
+        String username = "로그예외_recoverException_success";
+
+        // when
+        memberService.joinV2(username);
+
+        // then -> 멤버 저장, 로그 롤백
+        assertTrue(memberRepository.find(username).isPresent());
+        assertTrue(logRepository.find(username).isEmpty());
+    }
 }
